@@ -336,7 +336,8 @@
 </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    
+    <!-- sweet alert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Cari -->
     <script>
         async function cariData() {
@@ -344,7 +345,12 @@
         const nama = document.getElementById("nama").value;
 
         if (!nama) {
-            alert("Masukkan nama terlebih dahulu");
+            // alert("Masukkan nama terlebih dahulu");
+            Swal.fire({
+                title: "Input Nama",
+                text: "Masukkan nama pemilik terlebih dahulu untuk mencari data.",
+                icon: "warning",
+                });
             return;
         }
 
@@ -355,7 +361,12 @@
             const data = await response.json();
 
             if (data.error) {
-            alert(data.error);
+            // alert(data.error);
+            Swal.fire({
+                icon: "error",
+                title: "Maaf",
+                text: data.error,
+                });
             return;
             }
 
@@ -382,6 +393,18 @@
     <script>
         async function simpanData() {
 
+            // cek form kosong
+            const nama = document.getElementById("nama").value.trim();
+
+            if (!nama) {
+            Swal.fire({
+                icon: "warning",
+                title: "Form Kosong",
+                text: "Silakan cari dan isi data terlebih dahulu."
+            });
+            return;
+            }
+
         const inputs = document.querySelectorAll("input, textarea, select");
 
         let formData = {};
@@ -404,10 +427,20 @@
             body: formBody
             });
 
-            alert("Data berhasil dikirim.");
+            // alert("Data berhasil dikirim.");
+            Swal.fire({
+                icon: "success",
+                title: "Sukses",
+                text: "Data berhasil disimpan.",
+                });
 
         } catch (error) {
-            alert("Gagal menyimpan data");
+            // alert("Gagal menyimpan data");
+            Swal.fire({
+                icon: "error",
+                title: "Gagal",
+                text: "Gagal menyimpan data. Silakan coba lagi.",
+                });
             console.error(error);
         }
         }
