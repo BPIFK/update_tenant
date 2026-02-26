@@ -1,0 +1,82 @@
+const SPREADSHEET_ID = "1zUDKq0NCI_7SXeJA3cYz202Vkk1IW-kad47sXiiVkIA"; //id spreadsheet yang di copas lewat URL
+const SHEET_NAME = "Sheet1"; //nama tabel
+
+// Sensitif
+function normalize(text) {
+  return text
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+// Menampilkan Data
+function doGet(e) {
+
+  const sheet = SpreadsheetApp
+    .openById(SPREADSHEET_ID)
+    .getSheetByName(SHEET_NAME);
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const nama = e.parameter.nama;
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][2] && normalize(data[i][2]) === normalize(nama)) {
+
+      let obj = {};
+      headers.forEach((header, index) => {
+        obj[header] = data[i][index];
+      });
+
+      return ContentService
+        .createTextOutput(JSON.stringify(obj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ error: "Data tidak ditemukan" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Mengirimkan Update
+function doPost(e) {
+
+  const sheet = SpreadsheetApp
+    .openById(SPREADSHEET_ID)
+    .getSheetByName(SHEET_NAME);
+
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+
+  const body = e.parameter; //INI
+  const nama = body.nama;
+
+  if (!nama) {
+    return ContentService
+      .createTextOutput("Nama tidak boleh kosong");
+  }
+
+  const namaIndex = headers.indexOf("nama");
+
+  for (let i = 1; i < data.length; i++) {
+
+    if (data[i][namaIndex] &&
+    normalize(data[i][namaIndex]) === normalize(nama)) {
+
+      headers.forEach((header, colIndex) => {
+        if (body[header] !== undefined) {
+          sheet.getRange(i + 1, colIndex + 1)
+               .setValue(body[header]);
+        }
+      });
+
+      return ContentService
+        .createTextOutput("Data berhasil diupdate");
+    }
+  }
+
+  return ContentService
+    .createTextOutput("Data tidak ditemukan");
+}
